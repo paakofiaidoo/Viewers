@@ -61,6 +61,7 @@ function App({ config, defaultExtensions, defaultModes }) {
   const {
     routerBasename,
     modes,
+    modesConfiguration,
     dataSources,
     oidc,
     showStudyList,
@@ -100,6 +101,7 @@ function App({ config, defaultExtensions, defaultModes }) {
   // Use config to create routes
   const appRoutes = createRoutes({
     modes,
+    modesConfiguration,
     dataSources,
     extensionManager,
     servicesManager,

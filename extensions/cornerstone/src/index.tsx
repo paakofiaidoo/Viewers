@@ -23,12 +23,13 @@ import * as CornerstoneExtensionTypes from './types';
 import { toolNames } from './initCornerstoneTools';
 import { getEnabledElement, reset as enabledElementReset } from './state';
 import dicomLoaderService from './utils/dicomLoaderService';
+import getActiveViewportEnabledElement from './utils/getActiveViewportEnabledElement';
 import { registerColormap } from './utils/colormap/transferFunctionHelpers';
 
 import { id } from './id';
 import * as csWADOImageLoader from './initWADOImageLoader.js';
 import { measurementMappingUtils } from './utils/measurementServiceMappings';
-import { PublicViewportOptions } from './services/ViewportService/Viewport';
+import type { PublicViewportOptions } from './services/ViewportService/Viewport';
 
 const Component = React.lazy(() => {
   return import(
@@ -120,7 +121,6 @@ const cornerstoneExtension: Types.Extensions.Extension = {
           },
           getEnabledElement,
           dicomLoaderService,
-          registerColormap,
         },
       },
       {
@@ -141,5 +141,5 @@ const cornerstoneExtension: Types.Extensions.Extension = {
 };
 
 export type { PublicViewportOptions };
-export { measurementMappingUtils, CornerstoneExtensionTypes, toolNames };
+export { measurementMappingUtils, CornerstoneExtensionTypes, toolNames , getActiveViewportEnabledElement};
 export default cornerstoneExtension;

@@ -2,8 +2,15 @@ window.config = {
   routerBasename: '/',
   extensions: [],
   modes: [],
+  modesConfiguration: [
+    {
+      mode: '@ohif/mode-longitudinal',
+      baseUrl:
+        '/projects/:project/locations/:location/datasets/:dataset/dicomStores/:dicomStore/study/:StudyInstanceUIDs',
+    },
+  ],
   customizationService: {},
-  showStudyList: false,
+  showStudyList: true,
   maxNumberOfWebWorkers: 3,
   omitQuotationForMultipartRequest: true,
   showWarningMessageForCrossOrigin: true,
@@ -34,11 +41,10 @@ window.config = {
   dataSources: [
     {
       friendlyName: 'GCP DICOMWeb Server',
-      namespace: '@ohif/extension-gcp.dataSourcesModule.gcpdicomweb',
+      namespace: '@ohif/extension-default.dataSourcesModule.dicomweb',
       sourceName: 'gcpdicomweb',
       configuration: {
         name: 'gcpdicomweb',
-        healthcareApiEndpoint: 'https://healthcare.googleapis.com/v1',
         qidoSupportsIncludeField: false,
         imageRendering: 'wadors',
         thumbnailRendering: 'wadors',
@@ -47,6 +53,18 @@ window.config = {
         supportsWildcard: false,
         singlepart: 'bulkdata,video,pdf',
         useBulkDataURI: false,
+        onConfiguration: (dicomWebConfig, options) => {
+          const { params } = options;
+          const { project, location, dataset, dicomStore } = params;
+          const pathUrl = `https://healthcare.googleapis.com/v1/projects/${project}/locations/${location}/datasets/${dataset}/dicomStores/${dicomStore}/dicomWeb`;
+          return {
+            ...dicomWebConfig,
+            wadoRoot: pathUrl,
+            qidoRoot: pathUrl,
+            wadoUri: pathUrl,
+            wadoUriRoot: pathUrl,
+          };
+        },
       },
     },
     {
@@ -77,6 +95,14 @@ window.config = {
         staticWado: true,
         singlepart: 'bulkdata,video,pdf',
         useBulkDataURI: false,
+      },
+    },
+    {
+      friendlyName: 'dicomweb delegating proxy',
+      namespace: '@ohif/extension-default.dataSourcesModule.dicomwebproxy',
+      sourceName: 'dicomwebproxy',
+      configuration: {
+        name: 'dicomwebproxy',
       },
     },
     {
