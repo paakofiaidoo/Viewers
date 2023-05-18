@@ -61,8 +61,14 @@
     "@ohif/extension-dicom-pdf": "^3.0.1",
     "@ohif/extension-dicom-video": "^3.0.1",
     "@ohif/extension-test": "0.0.1",
+    "@ohif/extension-gcp": "^1.0.0",
     "@ohif/i18n": "^1.0.0",
     "@ohif/mode-basic-dev-mode": "^3.0.0",
+<<<<<<< Updated upstream
+=======
+    "@ohif/mode-test": "^0.0.1",
+    "@ohif/mode-gcp": "^1.0.0",
+>>>>>>> Stashed changes
     "@ohif/mode-longitudinal": "^3.0.0",
     "@ohif/mode-test": "^0.0.1",
     "@ohif/ui": "^2.0.0",

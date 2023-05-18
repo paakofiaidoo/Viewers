@@ -3,7 +3,7 @@ window.config = {
   extensions: [],
   modes: [],
   customizationService: {},
-  showStudyList: true,
+  showStudyList: false,
   maxNumberOfWebWorkers: 3,
   omitQuotationForMultipartRequest: true,
   showWarningMessageForCrossOrigin: true,
@@ -13,11 +13,42 @@ window.config = {
   maxNumRequests: {
     interaction: 100,
     thumbnail: 75,
-    // Prefetch number is dependent on the http protocol. For http 2 or
-    // above, the number of requests can be go a lot higher.
     prefetch: 25,
   },
+  defaultDataSourceName: 'gcpdicomweb',
+  oidc: [
+    {
+      authority: 'https://accounts.google.com',
+      client_id:
+        '723928408739-k9k9r3i44j32rhu69vlnibipmmk9i57p.apps.googleusercontent.com',
+      redirect_uri: '/callback',
+      response_type: 'id_token token',
+      scope:
+        'email profile openid https://www.googleapis.com/auth/cloudplatformprojects.readonly https://www.googleapis.com/auth/cloud-healthcare',
+      post_logout_redirect_uri: '/logout-redirect.html',
+      revoke_uri: 'https://accounts.google.com/o/oauth2/revoke?token=',
+      automaticSilentRenew: true,
+      revokeAccessTokenOnSignout: true,
+    },
+  ],
   dataSources: [
+    {
+      friendlyName: 'GCP DICOMWeb Server',
+      namespace: '@ohif/extension-gcp.dataSourcesModule.gcpdicomweb',
+      sourceName: 'gcpdicomweb',
+      configuration: {
+        name: 'gcpdicomweb',
+        healthcareApiEndpoint: 'https://healthcare.googleapis.com/v1',
+        qidoSupportsIncludeField: false,
+        imageRendering: 'wadors',
+        thumbnailRendering: 'wadors',
+        enableStudyLazyLoad: true,
+        supportsFuzzyMatching: false,
+        supportsWildcard: false,
+        singlepart: 'bulkdata,video,pdf',
+        useBulkDataURI: false,
+      },
+    },
     {
       friendlyName: 'dcmjs DICOMWeb Server',
       namespace: '@ohif/extension-default.dataSourcesModule.dicomweb',
@@ -67,7 +98,23 @@ window.config = {
     console.warn(error.status);
     console.warn('test, navigate to https://ohif.org/');
   },
-  defaultDataSourceName: 'dicomweb',
+  whiteLabeling: {
+    createLogoComponentFn: function (React) {
+      return React.createElement(
+        'a',
+        {
+          target: '_self',
+          rel: 'noopener noreferrer',
+          className: 'text-purple-600 line-through',
+          href: '/',
+        },
+        React.createElement('img', {
+          src: '/assets/idc.svg',
+          className: 'w-14 h-14',
+        })
+      );
+    },
+  },
   hotkeys: [
     {
       commandName: 'incrementActiveViewport',
