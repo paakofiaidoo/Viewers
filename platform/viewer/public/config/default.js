@@ -2,13 +2,6 @@ window.config = {
   routerBasename: '/',
   extensions: [],
   modes: [],
-  modesConfiguration: [
-    {
-      mode: '@ohif/mode-longitudinal',
-      baseUrl:
-        '/projects/:project/locations/:location/datasets/:dataset/dicomStores/:dicomStore/study/:StudyInstanceUIDs',
-    },
-  ],
   customizationService: {},
   showStudyList: true,
   maxNumberOfWebWorkers: 3,
@@ -22,7 +15,7 @@ window.config = {
     thumbnail: 75,
     prefetch: 25,
   },
-  defaultDataSourceName: 'gcpdicomweb',
+  defaultDataSourceName: 'dicomweb',
   oidc: [
     {
       authority: 'https://accounts.google.com',

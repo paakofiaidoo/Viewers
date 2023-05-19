@@ -66,6 +66,7 @@
     "@ohif/i18n": "^1.0.0",
     "@ohif/mode-basic-dev-mode": "^3.0.0",
     "@ohif/mode-test": "^0.0.1",
+    "@ohif/mode-longitudinal-gcp": "^1.0.0",
     "@ohif/mode-longitudinal": "^3.0.0",
     "@ohif/mode-microscopy": "^3.0.0",
     "@ohif/ui": "^2.0.0",
