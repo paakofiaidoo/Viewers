@@ -5,7 +5,7 @@
 
 import 'regenerator-runtime/runtime';
 
-import App from './App.js';
+import App from './src/App.js';
 import React from 'react';
 import ReactDOM from 'react-dom';
 // test
@@ -32,7 +32,7 @@ import OHIFDicomPDFExtension from '@ohif/extension-dicom-pdf';
 //import OHIFDicomTagBrowserExtension from '@ohif/extension-dicom-tag-browser';
 // Add this for Debugging purposes:
 //import OHIFDebuggingExtension from '@ohif/extension-debugging';
-import { version } from '../package.json';
+import { version } from './package.json';
 
 /*
  * Default Settings
