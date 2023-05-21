@@ -1,10 +1,11 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classnames from 'classnames';
 import { useNavigate } from 'react-router-dom';
 import { DicomMetadataStore, MODULE_TYPES } from '@ohif/core';
-
+import axios from 'axios';
 import Dropzone from 'react-dropzone';
 import filesToStudies from './filesToStudies';
+import JSZip from 'jszip';
 
 import { extensionManager } from '../../App.tsx';
 
@@ -48,6 +49,7 @@ function Local({ modePath }: LocalProps) {
   const navigate = useNavigate();
   const dropzoneRef = useRef();
   const [dropInitiated, setDropInitiated] = React.useState(false);
+  const [state, setState] = useState({});
 
   // Initializing the dicom local dataSource
   const dataSourceModules = extensionManager.modules[MODULE_TYPES.DATA_SOURCE];
@@ -73,25 +75,25 @@ function Local({ modePath }: LocalProps) {
 
     const query = new URLSearchParams();
 
-    if (microscopyExtensionLoaded) {
-      // TODO: for microscopy, we are forcing microscopy mode, which is not ideal.
-      //     we should make the local drag and drop navigate to the worklist and
-      //     there user can select microscopy mode
-      const smStudies = studies.filter(id => {
-        const study = DicomMetadataStore.getStudy(id);
-        return (
-          study.series.findIndex(
-            s => s.Modality === 'SM' || s.instances[0].Modality === 'SM'
-          ) >= 0
-        );
-      });
+    // if (microscopyExtensionLoaded) {
+    //   // TODO: for microscopy, we are forcing microscopy mode, which is not ideal.
+    //   //     we should make the local drag and drop navigate to the worklist and
+    //   //     there user can select microscopy mode
+    //   const smStudies = studies.filter(id => {
+    //     const study = DicomMetadataStore.getStudy(id);
+    //     return (
+    //       study.series.findIndex(
+    //         s => s.Modality === 'SM' || s.instances[0].Modality === 'SM'
+    //       ) >= 0
+    //     );
+    //   });
 
-      if (smStudies.length > 0) {
-        smStudies.forEach(id => query.append('StudyInstanceUIDs', id));
+    //   if (smStudies.length > 0) {
+    //     smStudies.forEach(id => query.append('StudyInstanceUIDs', id));
 
-        modePath = 'microscopy';
-      }
-    }
+    //     modePath = 'microscopy';
+    //   }
+    // }
 
     // Todo: navigate to work list and let user select a mode
     studies.forEach(id => query.append('StudyInstanceUIDs', id));
@@ -100,8 +102,49 @@ function Local({ modePath }: LocalProps) {
     navigate(`/${modePath}?${decodeURIComponent(query.toString())}`);
   };
 
+  const downloadAndLoad = () => {
+    setState({ isLoading: true, failed: false });
+    axios
+      .request({
+        url:
+          'https://real-lizards-fold.loca.lt/rest/files?fileRef=s3://2023/05/21/4b63f39b-f20a-4c63-4aea-0b8e51773e34?name=files',
+        method: 'GET',
+        responseType: 'arraybuffer',
+      })
+      .then(response => {
+        // Extract the zip file using JSZip
+        const zip = new JSZip();
+        return zip.loadAsync(response.data);
+      })
+      .then(zip => {
+        // Get the file names from the zip and set to state
+        const fileObjectsPromises = Object.values(zip.files).map(async data => {
+          const blob = await data.async('blob');
+          const fileExt = data.name.split('.').pop(); // get the file extension
+          if (fileExt === 'png' || fileExt === 'jpg' || fileExt === 'jpeg') {
+            return new File([await blob], data.name, {
+              type: 'image/' + fileExt,
+            });
+          }
+          return new File([await blob], data.name);
+        });
+        Promise.all(fileObjectsPromises)
+          .then(fileObjects => {
+            setState({ isLoading: false, fileObjects });
+            onDrop(fileObjects);
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      })
+      .catch(() => {
+        setState({ isLoading: false, failed: true });
+      });
+  };
   // Set body style
   useEffect(() => {
+    console.log('opens');
+    downloadAndLoad();
     document.body.classList.add('bg-black');
     return () => {
       document.body.classList.remove('bg-black');

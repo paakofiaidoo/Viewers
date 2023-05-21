@@ -87,7 +87,6 @@
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^9.0.1",
     "cross-env": "^5.2.0",
-    "css-loader": "^3.2.0",
     "dotenv": "^8.1.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^7.2.0",
