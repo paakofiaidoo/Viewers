@@ -38,7 +38,7 @@ jobs:
           name: deploy staging to EB
           command: |
             eb init chestify-viewer -r us-east-1 -p Docker -k dashboard
-            eb create chestify-viewer -it t2.2xlarge
+            # eb create chestify-viewer -it t2.2xlarge
             # cat .env | while IFS= read -r line; do key=$(echo $line | cut -d'=' -f1); value=$(echo $line | cut -d'=' -f2-); export $key="$value"; done
             eb deploy chestify-viewer
             eb status
