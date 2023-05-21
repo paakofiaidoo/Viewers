@@ -50,7 +50,7 @@ RUN yarn install
 COPY . .
 
 # To restore workspaces symlinks
-RUN yarn install
+# RUN yarn install
 
 ENV PATH /usr/src/app/node_modules/.bin:$PATH
 ENV QUICK_BUILD true
