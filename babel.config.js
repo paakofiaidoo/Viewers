@@ -13,12 +13,18 @@ module.exports = {
       'inline-react-svg',
       {
         svgo: {
-          plugins: extendDefaultPlugins([
+          plugins: [
             {
-              name: 'removeViewBox',
-              active: false,
+              name: 'preset-default',
+              params: {
+                overrides: {
+                  removeViewBox: {
+                    active: false,
+                  },
+                },
+              },
             },
-          ]),
+          ],
         },
       },
     ],

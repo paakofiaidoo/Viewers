@@ -56,7 +56,10 @@ const createRoutes = ({
     path: '/',
     children: DataSourceWrapper,
     private: true,
-    props: { children: WorkList, servicesManager },
+    props: {
+      children: Local.bind(null, { modePath: 'viewer/dicomlocal' }),
+      servicesManager,
+    },
   };
 
   const customRoutes = customizationService.getGlobalCustomization(
