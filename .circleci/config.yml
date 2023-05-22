@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  eb: circleci/aws-elastic-beanstalk@2.0.1
+  aws-s3: circleci/aws-s3@3.1.1 
 jobs:
   build:
     docker:
@@ -17,6 +17,9 @@ jobs:
           command: |
             yarn
             yarn build
+      - aws-s3/sync:
+          from: platform/viewer/dist
+          to: 's3://ohif-viewer-chestify'
       - save_cache:
           paths:
             - node_modules
@@ -25,25 +28,10 @@ jobs:
 
   deploy:
     docker:
-      - image: "cimg/base:stable"
+      - image: amazon/aws-cli
     steps:
       - checkout
-      - run:
-          name: Update submodule
-          command: git submodule update --init --recursive
-      - attach_workspace:
-          at: ~/
-      - eb/setup
-      - run:
-          name: deploy staging to EB
-          command: |
-            eb init chestify-viewer-2 -r us-east-1 -p Docker -k dashboard
-            eb create chestify-viewer-2 -it a1.4xlarge
-            # cat .env | while IFS= read -r line; do key=$(echo $line | cut -d'=' -f1); value=$(echo $line | cut -d'=' -f2-); export $key="$value"; done
-            eb deploy chestify-viewer-2
-            eb status
-
-
+      - run: aws s3 sync build/ s3://ohif-viewer-chestify
 
 
 
@@ -51,8 +39,6 @@ workflows:
   default:
     jobs:
       - build
-      - deploy:
-          requires: [build]
-          # filters:
-          #   branches:
-          #     only: [develop]
+      # - deploy:
+      #     requires: [build]
+
