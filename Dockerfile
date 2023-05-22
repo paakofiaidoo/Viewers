@@ -70,6 +70,7 @@ FROM node:latest AS build
 WORKDIR /app
 COPY . .
 # COPY ["package.json", "yarn.lock", "preinstall.js", "./"]
+RUN yarn config set workspaces-experimental true
 RUN yarn
 RUN  yarn build
 
