@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classnames from 'classnames';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { DicomMetadataStore, MODULE_TYPES } from '@ohif/core';
 import axios from 'axios';
 import Dropzone from 'react-dropzone';
@@ -45,11 +45,18 @@ type LocalProps = {
   modePath: string;
 };
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 function Local({ modePath }: LocalProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const url = new URLSearchParams(location.search).get('file');
   const dropzoneRef = useRef();
   const [dropInitiated, setDropInitiated] = React.useState(false);
-  const [state, setState] = useState({});
+  const [state, setState] = useState({
+    isLoading: false,
+    failed: false,
+    fileObjects: [],
+  });
 
   // Initializing the dicom local dataSource
   const dataSourceModules = extensionManager.modules[MODULE_TYPES.DATA_SOURCE];
@@ -103,102 +110,146 @@ function Local({ modePath }: LocalProps) {
   };
 
   const downloadAndLoad = () => {
-    setState({ isLoading: true, failed: false });
-    axios
-      .request({
-        url:
-          'https://real-lizards-fold.loca.lt/rest/files?fileRef=s3://2023/05/21/4b63f39b-f20a-4c63-4aea-0b8e51773e34?name=files',
-        method: 'GET',
-        responseType: 'arraybuffer',
-      })
-      .then(response => {
-        // Extract the zip file using JSZip
-        const zip = new JSZip();
-        return zip.loadAsync(response.data);
-      })
-      .then(zip => {
-        // Get the file names from the zip and set to state
-        const fileObjectsPromises = Object.values(zip.files).map(async data => {
-          const blob = await data.async('blob');
-          const fileExt = data.name.split('.').pop(); // get the file extension
-          if (fileExt === 'png' || fileExt === 'jpg' || fileExt === 'jpeg') {
-            return new File([await blob], data.name, {
-              type: 'image/' + fileExt,
+    console.log(url);
+    if (url) {
+      setState({ ...state, isLoading: true, failed: false });
+      axios
+        .request({
+          url,
+          method: 'GET',
+          responseType: 'arraybuffer',
+        })
+        .then(response => {
+          // Extract the zip file using JSZip
+          const zip = new JSZip();
+          return zip.loadAsync(response.data);
+        })
+        .then(zip => {
+          // Get the file names from the zip and set to state
+          const fileObjectsPromises = Object.values(zip.files).map(
+            async data => {
+              const blob = await data.async('blob');
+              const fileExt = data.name.split('.').pop(); // get the file extension
+              if (
+                fileExt === 'png' ||
+                fileExt === 'jpg' ||
+                fileExt === 'jpeg'
+              ) {
+                return new File([await blob], data.name, {
+                  type: 'image/' + fileExt,
+                });
+              }
+              return new File([await blob], data.name);
+            }
+          );
+          Promise.all(fileObjectsPromises)
+            .then(fileObjects => {
+              setState({ ...state, isLoading: false, fileObjects });
+              onDrop(fileObjects);
+            })
+            .catch(error => {
+              console.log(error);
             });
-          }
-          return new File([await blob], data.name);
+        })
+        .catch(() => {
+          setState({ ...state, isLoading: false, failed: true });
         });
-        Promise.all(fileObjectsPromises)
-          .then(fileObjects => {
-            setState({ isLoading: false, fileObjects });
-            onDrop(fileObjects);
-          })
-          .catch(error => {
-            console.log(error);
-          });
-      })
-      .catch(() => {
-        setState({ isLoading: false, failed: true });
-      });
+    }
   };
   // Set body style
   useEffect(() => {
-    console.log('opens');
     downloadAndLoad();
-    document.body.classList.add('bg-black');
-    return () => {
-      document.body.classList.remove('bg-black');
-    };
+    // document.body.classList.add('bg-black');
+    // return () => {
+    //   document.body.classList.remove('bg-black');
+    // };
   }, []);
 
   return (
-    <Dropzone
-      ref={dropzoneRef}
-      onDrop={acceptedFiles => {
-        setDropInitiated(true);
-        onDrop(acceptedFiles);
-      }}
-      noClick
-    >
-      {({ getRootProps }) => (
-        <div {...getRootProps()} style={{ width: '100%', height: '100%' }}>
-          <div className="h-screen w-screen flex justify-center items-center ">
-            <div className="py-8 px-8 mx-auto bg-secondary-dark drop-shadow-md space-y-2 rounded-lg">
-              <img
-                className="block mx-auto h-14"
-                src="./ohif-logo.svg"
-                alt="OHIF"
-              />
-              <div className="text-center space-y-2 pt-4">
-                {dropInitiated ? (
-                  <div className="flex flex-col items-center justify-center pt-48">
-                    <LoadingIndicatorProgress
-                      className={'w-full h-full bg-black'}
-                    />
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <p className="text-blue-300 text-base">
-                      Note: You data is not uploaded to any server, it will stay
-                      in your local browser application
-                    </p>
-                    <p className="text-xg text-primary-active font-semibold pt-6">
-                      Drag and Drop DICOM files here to load them in the Viewer
-                    </p>
-                    <p className="text-blue-300 text-lg">Or click to </p>
-                  </div>
-                )}
-              </div>
-              <div className="flex justify-around pt-4 ">
-                {getLoadButton(onDrop, 'Load files', false)}
-                {getLoadButton(onDrop, 'Load folders', true)}
-              </div>
-            </div>
+    <div className="h-screen w-screen flex justify-center items-center ">
+      <div className="py-8 px-8 mx-auto bg-secondary-dark drop-shadow-md space-y-2 rounded-lg">
+        <div className="text-center space-y-2 pt-4">
+          <div className="space-y-2">
+            <p className="text-xg text-primary-active font-semibold pt-6">
+              {state.isLoading
+                ? 'Getting Files ...'
+                : state.failed
+                ? 'Error Getting files'
+                : 'Opening Images ....'}
+              {state.isLoading && (
+                <LoadingIndicatorProgress
+                  className={'w-full h-full bg-black'}
+                />
+              )}
+            </p>
+            <button
+              className={classnames('font-medium', 'ml-2')}
+              onClick={downloadAndLoad}
+            >
+              Retry
+            </button>
+            <hr />
+            <button
+              className={classnames('font-medium', 'ml-2')}
+              onClick={() => {}}
+            >
+              <a
+                href={url + '.zip'}
+                download
+                className="text-900 w-full md:w-2"
+              >
+                Download Files Locally
+              </a>
+            </button>
           </div>
         </div>
-      )}
-    </Dropzone>
+      </div>
+    </div>
   );
+
+  // return (
+  //   <Dropzone
+  //     ref={dropzoneRef}
+  //     onDrop={acceptedFiles => {
+  //       setDropInitiated(true);
+  //       onDrop(acceptedFiles);
+  //     }}
+  //     noClick
+  //   >
+  //     {({ getRootProps }) => (
+  //       <div {...getRootProps()} style={{ width: '100%', height: '100%' }}>
+  //         <div className="h-screen w-screen flex justify-center items-center ">
+  //           <div className="py-8 px-8 mx-auto bg-secondary-dark drop-shadow-md space-y-2 rounded-lg">
+  //             <div className="text-center space-y-2 pt-4">
+  //               {dropInitiated ? (
+  //                 <div className="flex flex-col items-center justify-center pt-48">
+  //                   <LoadingIndicatorProgress
+  //                     className={'w-full h-full bg-black'}
+  //                   />
+  //                 </div>
+  //               ) : (
+  //                 <div className="space-y-2">
+  //                   <p className="text-blue-300 text-base">
+  //                     Note: You data is not uploaded to any server, it will stay
+  //                     in your local browser application
+  //                   </p>
+  //                   <p className="text-xg text-primary-active font-semibold pt-6">
+  //                     Drag and Drop DICOM files here to load them in the Viewer
+  //                   </p>
+  //                   <p className="text-blue-300 text-lg">Or click to </p>
+  //                 </div>
+  //               )}
+  //             </div>
+  //             <div className="flex justify-around pt-4 ">
+  //               {getLoadButton(onDrop, 'Load files', false)}
+  //               {getLoadButton(onDrop, 'Load folders', true)}
+  //             </div>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     )}
+  //   </Dropzone>
+  // );
 }
 
 export default Local;
