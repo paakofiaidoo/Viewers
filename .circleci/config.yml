@@ -41,18 +41,18 @@ jobs:
       - image: "cimg/base:stable"
     steps:
       - checkout
-      - run:
-          name: Update submodule
-          command: git submodule update --init --recursive
       - attach_workspace:
           at: .
+      - run:
+          name: Update submodule
+          command: ls
       - eb/setup
       - run:
           name: deploy staging to EB
           command: |
-            eb init viewer-5 -r us-east-1 -p Docker -k dashboard
-            eb create viewer-5 -it t3.large
-            eb deploy viewer-5
+            eb init viewer-1 -r us-east-1 -p Docker -k dashboard
+            eb create viewer-1 -it t3.large
+            eb deploy viewer-1
             eb status
 
 
