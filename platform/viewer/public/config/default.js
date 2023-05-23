@@ -24,7 +24,7 @@ window.config = {
     prefetch: 25,
   },
   // filterQueryParam: false,
-  defaultDataSourceName: 'dicomweb',
+  defaultDataSourceName: 'dicomlocal',
   /* Dynamic config allows user to pass "configUrl" query string this allows to load config without recompiling application. The regex will ensure valid configuration source */
   // dangerouslyUseDynamicConfig: {
   //   enabled: true,
@@ -36,34 +36,34 @@ window.config = {
   //   regex: /.*/,
   // },
   dataSources: [
-    {
-      friendlyName: 'dcmjs DICOMWeb Server',
-      namespace: '@ohif/extension-default.dataSourcesModule.dicomweb',
-      sourceName: 'dicomweb',
-      configuration: {
-        name: 'aws',
-        // old server
-        // wadoUriRoot: 'https://server.dcmjs.org/dcm4chee-arc/aets/DCM4CHEE/wado',
-        // qidoRoot: 'https://server.dcmjs.org/dcm4chee-arc/aets/DCM4CHEE/rs',
-        // wadoRoot: 'https://server.dcmjs.org/dcm4chee-arc/aets/DCM4CHEE/rs',
+    // {
+    //   friendlyName: 'dcmjs DICOMWeb Server',
+    //   namespace: '@ohif/extension-default.dataSourcesModule.dicomweb',
+    //   sourceName: 'dicomweb',
+    //   configuration: {
+    //     name: 'aws',
+    //     // old server
+    //     // wadoUriRoot: 'https://server.dcmjs.org/dcm4chee-arc/aets/DCM4CHEE/wado',
+    //     // qidoRoot: 'https://server.dcmjs.org/dcm4chee-arc/aets/DCM4CHEE/rs',
+    //     // wadoRoot: 'https://server.dcmjs.org/dcm4chee-arc/aets/DCM4CHEE/rs',
 
-        // new server
-        wadoUriRoot: 'https://domvja9iplmyu.cloudfront.net/dicomweb',
-        qidoRoot: 'https://domvja9iplmyu.cloudfront.net/dicomweb',
-        wadoRoot: 'https://domvja9iplmyu.cloudfront.net/dicomweb',
+    //     // new server
+    //     wadoUriRoot: 'https://domvja9iplmyu.cloudfront.net/dicomweb',
+    //     qidoRoot: 'https://domvja9iplmyu.cloudfront.net/dicomweb',
+    //     wadoRoot: 'https://domvja9iplmyu.cloudfront.net/dicomweb',
 
-        qidoSupportsIncludeField: false,
-        supportsReject: false,
-        imageRendering: 'wadors',
-        thumbnailRendering: 'wadors',
-        enableStudyLazyLoad: true,
-        supportsFuzzyMatching: false,
-        supportsWildcard: true,
-        staticWado: true,
-        singlepart: 'bulkdata,video,pdf',
-        useBulkDataURI: false,
-      },
-    },
+    //     qidoSupportsIncludeField: false,
+    //     supportsReject: false,
+    //     imageRendering: 'wadors',
+    //     thumbnailRendering: 'wadors',
+    //     enableStudyLazyLoad: true,
+    //     supportsFuzzyMatching: false,
+    //     supportsWildcard: true,
+    //     staticWado: true,
+    //     singlepart: 'bulkdata,video,pdf',
+    //     useBulkDataURI: false,
+    //   },
+    // },
     {
       friendlyName: 'dicomweb delegating proxy',
       namespace: '@ohif/extension-default.dataSourcesModule.dicomwebproxy',
