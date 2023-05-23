@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  aws-s3: circleci/aws-s3@3.1.1 
+  aws-s3: circleci/aws-s3@3.1.1
 jobs:
   build:
     docker:
@@ -27,11 +27,23 @@ jobs:
           key: cache-build
 
   deploy:
-    docker:
-      - image: amazon/aws-cli
+     docker:
+      - image: "cimg/base:stable"
     steps:
       - checkout
-      - run: aws s3 sync build/ s3://ohif-viewer-chestify
+      - run:
+          name: Update submodule
+          command: git submodule update --init --recursive
+      - attach_workspace:
+          at: ~/
+      - eb/setup
+      - run:
+          name: deploy staging to EB
+          command: |
+            eb init viewer -r us-east-1 -p Docker -k dashboard
+            eb create viewer -it t3.large
+            eb deploy viewer
+            eb status
 
 
 
@@ -39,6 +51,5 @@ workflows:
   default:
     jobs:
       - build
-      # - deploy:
-      #     requires: [build]
-
+      - deploy:
+          requires: [build]

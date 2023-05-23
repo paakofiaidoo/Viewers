@@ -168,8 +168,9 @@ module.exports = (env, argv) => {
         disableDotRule: true,
       },
       headers: {
-        // 'Cross-Origin-Embedder-Policy': 'require-corp',
-        // 'Cross-Origin-Opener-Policy': 'same-origin',
+        'Cross-Origin-Embedder-Policy': 'require-corp',
+        'Cross-Origin-Opener-Policy': 'same-origin',
+        'Access-Control-Allow': '*',
       },
     },
   });
