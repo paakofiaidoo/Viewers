@@ -20,7 +20,7 @@ jobs:
             yarn build
       - run:
           name: Copy dist folder
-          command: cp -R platform/viewer/dist /app
+          command: cp -R platform/viewer/dist app
 
       - aws-s3/sync:
           from: platform/viewer/dist
