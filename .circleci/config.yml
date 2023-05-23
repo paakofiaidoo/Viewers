@@ -41,9 +41,9 @@ jobs:
       - run:
           name: deploy staging to EB
           command: |
-            eb init viewer -r us-east-1 -p Docker -k dashboard
-            eb create viewer -it c3.large
-            eb deploy viewer
+            eb init viewer-1 -r us-east-1 -p Docker -k dashboard
+            eb create viewer-1 -it c3.large
+            eb deploy viewer-1
             eb status
 
 
@@ -52,5 +52,4 @@ workflows:
   default:
     jobs:
       - build
-      - deploy:
-          requires: [build]
+      - deploy
