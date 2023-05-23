@@ -41,9 +41,9 @@ jobs:
       - run:
           name: deploy staging to EB
           command: |
-            eb init viewer-1 -r us-east-1 -p Docker -k dashboard
-            eb create viewer-1 -it c3.large
-            eb deploy viewer-1
+            eb init viewer-2 -r us-east-1 -p Docker -k dashboard
+            eb create viewer-2 -it c3.2xlarge
+            eb deploy viewer-2
             eb status
 
 
