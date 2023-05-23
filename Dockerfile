@@ -67,8 +67,8 @@ RUN rm /etc/nginx/conf.d/default.conf
 USER nginx
 COPY --chown=nginx:nginx .docker/Viewer-v3.x /usr/src
 RUN chmod 777 /usr/src/entrypoint.sh
-RUN ls
-COPY app /usr/share/nginx/html
+RUN ls -a
+COPY /app /usr/share/nginx/html
 ENTRYPOINT ["/usr/src/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
 EXPOSE 5000
