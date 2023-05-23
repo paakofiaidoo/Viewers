@@ -61,6 +61,7 @@
 # which runs Nginx using Alpine Linux
 FROM nginxinc/nginx-unprivileged:1.23.1-alpine as final
 #RUN apk add --no-cache bash
+COPY . .
 ENV PORT=5000
 RUN rm /etc/nginx/conf.d/default.conf
 USER nginx
