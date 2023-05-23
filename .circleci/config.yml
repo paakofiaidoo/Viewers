@@ -18,6 +18,10 @@ jobs:
           command: |
             yarn
             yarn build
+      - run:
+          name: Copy dist folder
+          command: cp -R platform/viewer/dist /app
+
       - aws-s3/sync:
           from: platform/viewer/dist
           to: 's3://ohif-viewer-chestify'
@@ -26,6 +30,11 @@ jobs:
             - node_modules
             - yarn.lock
           key: cache-build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - /app
+            - build.zip
 
   deploy:
     docker:
@@ -36,7 +45,7 @@ jobs:
           name: Update submodule
           command: git submodule update --init --recursive
       - attach_workspace:
-          at: ~/
+          at: .
       - eb/setup
       - run:
           name: deploy staging to EB

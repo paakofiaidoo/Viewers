@@ -21,43 +21,41 @@
 
 # Stage 1: Build the application
 # docker build -t ohif/viewer:latest .
-FROM node:16.15.0-slim as json-copier
+# FROM node:16.15.0-slim as json-copier
 
-RUN mkdir /usr/src/app
-WORKDIR /usr/src/app
+# RUN mkdir /usr/src/app
+# WORKDIR /usr/src/app
 
-COPY ["package.json", "yarn.lock", "preinstall.js", "./"]
-COPY extensions /usr/src/app/extensions
-COPY modes /usr/src/app/modes
-COPY platform /usr/src/app/platform
+# COPY platform/viewer/dist/ /usr/src/app/
 
-# Find and remove non-package.json files
-#RUN find extensions \! -name "package.json" -mindepth 2 -maxdepth 2 -print | xargs rm -rf
-#RUN find modes \! -name "package.json" -mindepth 2 -maxdepth 2 -print | xargs rm -rf
-#RUN find platform \! -name "package.json" -mindepth 2 -maxdepth 2 -print | xargs rm -rf
 
-# Copy Files
-FROM node:16.15.0-slim as builder
-RUN mkdir /usr/src/app
-WORKDIR /usr/src/app
+# # Find and remove non-package.json files
+# #RUN find extensions \! -name "package.json" -mindepth 2 -maxdepth 2 -print | xargs rm -rf
+# #RUN find modes \! -name "package.json" -mindepth 2 -maxdepth 2 -print | xargs rm -rf
+# #RUN find platform \! -name "package.json" -mindepth 2 -maxdepth 2 -print | xargs rm -rf
 
-COPY --from=json-copier /usr/src/app .
+# # Copy Files
+# FROM node:16.15.0-slim as builder
+# RUN mkdir /usr/src/app
+# WORKDIR /usr/src/app
 
-# Run the install before copying the rest of the files
-RUN yarn config set workspaces-experimental true
-RUN yarn install --frozen-lockfile --verbose
+# COPY --from=json-copier /usr/src/app .
 
-COPY . .
+# # Run the install before copying the rest of the files
+# RUN yarn config set workspaces-experimental true
+# RUN yarn install --frozen-lockfile --verbose
 
-# To restore workspaces symlinks
-RUN yarn install --frozen-lockfile --verbose
+# COPY . .
 
-ENV PATH /usr/src/app/node_modules/.bin:$PATH
-ENV QUICK_BUILD true
-# ENV GENERATE_SOURCEMAP=false
-# ENV REACT_APP_CONFIG=config/default.js
+# # To restore workspaces symlinks
+# RUN yarn install --frozen-lockfile --verbose
 
-RUN yarn run build
+# ENV PATH /usr/src/app/node_modules/.bin:$PATH
+# ENV QUICK_BUILD true
+# # ENV GENERATE_SOURCEMAP=false
+# # ENV REACT_APP_CONFIG=config/default.js
+
+# RUN yarn run build
 
 # Stage 3: Bundle the built application into a Docker container
 # which runs Nginx using Alpine Linux
@@ -68,7 +66,7 @@ RUN rm /etc/nginx/conf.d/default.conf
 USER nginx
 COPY --chown=nginx:nginx .docker/Viewer-v3.x /usr/src
 RUN chmod 777 /usr/src/entrypoint.sh
-COPY --from=builder /usr/src/app/platform/viewer/dist /usr/share/nginx/html
+COPY /app /usr/share/nginx/html
 ENTRYPOINT ["/usr/src/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
 EXPOSE 5000
