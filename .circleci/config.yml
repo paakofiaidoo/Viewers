@@ -27,7 +27,7 @@ jobs:
           key: cache-build
 
   deploy:
-     docker:
+    docker:
       - image: "cimg/base:stable"
     steps:
       - checkout
