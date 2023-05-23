@@ -1,4 +1,3 @@
-/*
   # Ensure the examples are cross-origin isolated so that
   # we can use SharedArrayBuffer
   # See https://developer.mozilla.org/en-US/docs/Web/API/crossOriginIsolated
