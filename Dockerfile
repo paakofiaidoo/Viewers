@@ -21,28 +21,36 @@
 
 # Stage 1: Build the application
 # docker build -t ohif/viewer:latest .
-FROM node:14-slim as builder
+FROM node:16.15.0-slim as json-copier
 
 RUN mkdir /usr/src/app
 WORKDIR /usr/src/app
 
-# Copy Files
-COPY .docker /usr/src/app/.docker
-COPY .webpack /usr/src/app/.webpack
+COPY ["package.json", "yarn.lock", "preinstall.js", "./"]
 COPY extensions /usr/src/app/extensions
+COPY modes /usr/src/app/modes
 COPY platform /usr/src/app/platform
-COPY .browserslistrc /usr/src/app/.browserslistrc
-COPY aliases.config.js /usr/src/app/aliases.config.js
-COPY babel.config.js /usr/src/app/babel.config.js
-COPY lerna.json /usr/src/app/lerna.json
-COPY package.json /usr/src/app/package.json
-COPY postcss.config.js /usr/src/app/postcss.config.js
-COPY yarn.lock /usr/src/app/yarn.lock
 
-RUN apt-get update && apt-get install -y python make g++
+# Find and remove non-package.json files
+#RUN find extensions \! -name "package.json" -mindepth 2 -maxdepth 2 -print | xargs rm -rf
+#RUN find modes \! -name "package.json" -mindepth 2 -maxdepth 2 -print | xargs rm -rf
+#RUN find platform \! -name "package.json" -mindepth 2 -maxdepth 2 -print | xargs rm -rf
+
+# Copy Files
+FROM node:16.15.0-slim as builder
+RUN mkdir /usr/src/app
+WORKDIR /usr/src/app
+
+COPY --from=json-copier /usr/src/app .
+
 # Run the install before copying the rest of the files
 RUN yarn config set workspaces-experimental true
-RUN yarn install --verbose
+RUN yarn install --frozen-lockfile --verbose
+
+COPY . .
+
+# To restore workspaces symlinks
+RUN yarn install --frozen-lockfile --verbose
 
 ENV PATH /usr/src/app/node_modules/.bin:$PATH
 ENV QUICK_BUILD true
@@ -51,16 +59,16 @@ ENV QUICK_BUILD true
 
 RUN yarn run build
 
-# Stage 2: Bundle the built application into a Docker container
+# Stage 3: Bundle the built application into a Docker container
 # which runs Nginx using Alpine Linux
-FROM nginx:1.21.1-alpine
-RUN apk add --no-cache bash
-RUN rm -rf /etc/nginx/conf.d
-COPY .docker/Viewer-v3.x /etc/nginx/conf.d
-COPY .docker/Viewer-v3.x/entrypoint.sh /usr/src/
+FROM nginxinc/nginx-unprivileged:1.23.1-alpine as final
+#RUN apk add --no-cache bash
+ENV PORT=80
+RUN rm /etc/nginx/conf.d/default.conf
+USER nginx
+COPY --chown=nginx:nginx .docker/Viewer-v3.x /usr/src
 RUN chmod 777 /usr/src/entrypoint.sh
 COPY --from=builder /usr/src/app/platform/viewer/dist /usr/share/nginx/html
-EXPOSE 5000
-EXPOSE 5000
 ENTRYPOINT ["/usr/src/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
+# EXPOSE 5000
