@@ -68,7 +68,10 @@ USER nginx
 COPY --chown=nginx:nginx .docker/Viewer-v3.x /usr/src
 RUN chmod 777 /usr/src/entrypoint.sh
 RUN ls -a
-COPY /app /usr/share/nginx/html
+RUN apk add --no-cache unzip
+COPY app.zip /tmp
+RUN unzip /tmp/app.zip -d /usr/share/nginx/html && rm /tmp/app.zip
+# COPY /app /usr/share/nginx/html
 ENTRYPOINT ["/usr/src/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
 EXPOSE 5000
