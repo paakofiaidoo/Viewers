@@ -16,6 +16,7 @@ jobs:
       - run:
           name: build app
           command: |
+            ls
             yarn
             yarn build
       - run:
@@ -34,7 +35,6 @@ jobs:
           root: .
           paths:
             - app
-            - build.zip
 
   deploy:
     docker:
@@ -43,18 +43,17 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - run: sudo apt-get update && sudo apt-get install -y zip
-      - run: zip -r app.zip app
-      - run:
-          name: Update submodule
-          command: ls
+      # - run: sudo apt-get update && sudo apt-get install -y zip
       - eb/setup
       - run:
           name: deploy staging to EB
           command: |
-            eb init viewer-1 -r us-east-1 -p Docker -k dashboard
-            # eb create viewer-1 -it t3.large
-            eb deploy viewer-1
+            # zip -r app.zip app
+            git add .
+            # ls -a
+            eb init viewer-2 -r us-east-1 -p Docker -k dashboard
+            # eb create viewer-2 -it t2.large
+            eb deploy viewer-2 --staged
             eb status
 
 
