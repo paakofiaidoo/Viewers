@@ -42,19 +42,20 @@ function Header({
             {isReturnEnabled && (
               <Icon name="chevron-left" className="w-8 text-primary-active" />
             )}
-            <div className="ml-4">
-              {WhiteLabeling?.createLogoComponentFn?.(React, props) || (
+             <div className="ml-4" style={{color:"#fff"}} >
+              {/* {WhiteLabeling?.createLogoComponentFn?.(React, props) || (
                 <Svg name="logo-ohif" />
-              )}
+              )} */}
+              Chestify AI Viewer
             </div>
           </div>
         </div>
         <div className="flex items-center">{children}</div>
         <div className="flex items-center">
-          <span className="mr-3 text-lg text-common-light">
+          {/* <span className="mr-3 text-lg text-common-light">
             {t('INVESTIGATIONAL USE ONLY')}
-          </span>
-          <Dropdown id="options" showDropdownIcon={false} list={menuOptions}>
+          </span> */}
+          {/* <Dropdown id="options" showDropdownIcon={false} list={menuOptions}>
             <IconButton
               id={'options-settings-icon'}
               variant="text"
@@ -64,7 +65,7 @@ function Header({
             >
               <Icon name="settings" />
             </IconButton>
-            <IconButton
+             <IconButton
               id={'options-chevron-down-icon'}
               variant="text"
               color="inherit"
@@ -73,7 +74,7 @@ function Header({
             >
               <Icon name="chevron-down" />
             </IconButton>
-          </Dropdown>
+          </Dropdown> */}
         </div>
       </div>
     </NavBar>
