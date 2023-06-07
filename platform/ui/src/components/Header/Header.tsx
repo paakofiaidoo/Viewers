@@ -39,9 +39,9 @@ function Header({
             )}
             onClick={onClickReturn}
           >
-            {isReturnEnabled && (
+            {/* {isReturnEnabled && (
               <Icon name="chevron-left" className="w-8 text-primary-active" />
-            )}
+            )} */}
              <div className="ml-4" style={{color:"#fff"}} >
               {/* {WhiteLabeling?.createLogoComponentFn?.(React, props) || (
                 <Svg name="logo-ohif" />
